@@ -1,8 +1,13 @@
-{:did        "did:web:etzhayyim.github.io:com-etzhayyim-aburi"
- :handle     "aburi.etzhayyim.com"
- :ipns-key   "aburi-actor"
- :graph-type "com.etzhayyim.aburi.graph"
- :published  "2026-06-28"
- :bundle [["data" "data"]
-          [".well-known/did.json" "did.json"]
-          ["README.md" "README.md"]]}
+;; Datomic/Datascript tx-data (Phase 3 EDN-datomize fanout).
+;; Original bare map wrapped as a single entity, ns-prefixed "actor".
+;; Non-scalar values (nested maps/vectors-of-vectors) are pr-str'd blobs.
+
+[
+ {:db/id -1
+  :actor/did "did:web:etzhayyim.github.io:com-etzhayyim-aburi"
+  :actor/handle "aburi.etzhayyim.com"
+  :actor/ipns-key "aburi-actor"
+  :actor/graph-type "com.etzhayyim.aburi.graph"
+  :actor/published "2026-06-28"
+  :actor/bundle "[[\"data\" \"data\"] [\".well-known/did.json\" \"did.json\"] [\"README.md\" \"README.md\"]]"}
+]
