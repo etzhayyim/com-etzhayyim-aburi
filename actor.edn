@@ -9,5 +9,5 @@
   :actor/ipns-key "aburi-actor"
   :actor/graph-type "com.etzhayyim.aburi.graph"
   :actor/published "2026-06-28"
-  :actor/bundle "[[\"data\" \"data\"] [\".well-known/did.json\" \"did.json\"] [\"README.md\" \"README.md\"]]"}
+  :actor/bundle "[[\"data\" \"data\"] [\"wire/identity/did.json\" \"did.json\"] [\"README.md\" \"README.md\"]]"}
 ]

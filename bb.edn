@@ -1,0 +1,10 @@
+{:paths ["src" "test"]
+ :tasks {test {:requires ([clojure.test] [aburi.murakumo-test]
+                          [aburi.tests.test-analyze] [aburi.tests.test-coverage]
+                          [aburi.tests.test-ingest] [aburi.tests.test-kotoba]
+                          [aburi.tests.test-kotoba-bridge])
+               :task (let [r (clojure.test/run-tests 'aburi.murakumo-test
+                              'aburi.tests.test-analyze 'aburi.tests.test-coverage
+                              'aburi.tests.test-ingest 'aburi.tests.test-kotoba
+                              'aburi.tests.test-kotoba-bridge)]
+                       (when (pos? (+ (:fail r) (:error r))) (throw (ex-info "aburi tests failed" r))) r)}}}

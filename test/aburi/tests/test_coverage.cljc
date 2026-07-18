@@ -1,5 +1,5 @@
 (ns aburi.tests.test-coverage
-  "aburi 炙り — coverage-report tests (ADR-2606161630). 1:1 Clojure port of tests/test_coverage.py."
+  "aburi 炙り — coverage-report tests (ADR-2606161630). CLJC suite."
   (:require [clojure.test :refer [deftest is run-tests]]
             [clojure.string :as str]
             [clojure.set]
@@ -7,7 +7,7 @@
             [aburi.methods.analyze :as analyze]
             [aburi.methods.coverage-report :as coverage]))
 
-(def actor-dir (-> *file* io/file .getParentFile .getParentFile))
+(def actor-dir (io/file (or (System/getProperty "user.dir") ".")))
 (def seed (io/file actor-dir "data" "seed-tracker-exposure.kotoba.edn"))
 
 (defn load-seed [] (analyze/load-file* seed))

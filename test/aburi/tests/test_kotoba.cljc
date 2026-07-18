@@ -1,6 +1,6 @@
 #!/usr/bin/env bb
 ;; aburi 炙り — tracker-exposure-ledger persistence + heartbeat tests.
-;; Run:  bb --classpath 20-actors 20-actors/aburi/tests/test_kotoba.cljc
+;; Run:  bb --classpath src:test test/aburi/tests/test_kotoba.cljc
 (ns aburi.tests.test-kotoba
   (:require [aburi.methods.kotoba :as k]
             [aburi.methods.autorun :as auto]

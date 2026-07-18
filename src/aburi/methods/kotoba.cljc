@@ -2,7 +2,7 @@
 ;; aburi 炙り — tracker-exposure graph DATOM-LOG writer (content-addressed commit-DAG, cljc).
 (ns aburi.methods.kotoba
   "kotoba.cljc — aburi 炙り append-only TRACKER-EXPOSURE LEDGER writer
-  (on ADR-2605262130 + ADR-2605312345; the cljc twin of the existing methods/kotoba.py,
+  (on ADR-2605262130 + ADR-2605312345; the canonical CLJC implementation,
   same content-addressed commit-DAG machinery as the inochi/tate/tokigusuri/tanemaki/
   itonami/ugachi/busshi family). The cljc port completes aburi's datomic surface: it
   EMITTED canonical EAVT datoms (datom_emit) and had a py ledger, but lacked the cljc

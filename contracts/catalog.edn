@@ -1,0 +1,4 @@
+{:catalog/version 1 :catalog/canonical-format :edn :actor :aburi
+ :schemas [{:name :tracker-exposure :canonical/path "contracts/schema.edn"}]
+ :identity [{:kind :did-document :wire/path "wire/identity/did.json"}
+            {:kind :actor-profile :wire/path "wire/identity/profile.json"}]}

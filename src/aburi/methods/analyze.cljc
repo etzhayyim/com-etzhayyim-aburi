@@ -1,6 +1,6 @@
 (ns aburi.methods.analyze
   "aburi 炙り — edge-primary personal-tracking-exposure analyzer.
-  1:1 Clojure port of `methods/analyze.py` (ADR-2606161630).
+  Canonical CLJC implementation (ADR-2606161630).
 
   Reads a kotoba-EDN tracker-exposure graph (:organism/* nodes + :en/* 縁 over the
   tracker-exposure-ontology) and surfaces — for the MEMBER'S OWN surfaces — the answer to:
@@ -46,16 +46,25 @@
   #"[\s,]+|;[^\n]*|(\[|\]|\{|\}|\"(?:\\.|[^\"\\])*\"|[^\s,\[\]{}]+)")
 
 (defn tokens
-  "Lazy seq of significant tokens (group 1 of each tok-re match that captured)."
+  "Significant tokens (group 1 of each tok-re match that captured). Portable: clj uses
+  a JVM Matcher; cljs (squint/ComponentizeJS wasm, ADR-2606261200) uses a native global
+  RegExp .exec loop over the same pattern (tok-re is JVM/JS-compatible regex syntax)."
   [s]
-  (let [m (re-matcher tok-re s)]
-    ((fn step []
-       (lazy-seq
-        (when (.find m)
-          (let [t (.group m 1)]
-            (if (nil? t)
-              (step)
-              (cons t (step))))))))))
+  #?(:clj
+     (let [m (re-matcher tok-re s)]
+       ((fn step []
+          (lazy-seq
+           (when (.find m)
+             (let [t (.group m 1)]
+               (if (nil? t) (step) (cons t (step)))))))))
+     :cljs
+     (let [re  (js/RegExp. (.-source tok-re) "g")
+           out #js []]
+       (loop [mm (.exec re s)]
+         (when mm
+           (let [t (aget mm 1)] (when (some? t) (.push out t)))
+           (recur (.exec re s))))
+       out)))
 
 (defn atom-of
   "Port of _atom: \"…\" → unescaped string; true/false/nil → bool/nil; \":…\" kept as string;
@@ -71,11 +80,20 @@
     (= t "nil") nil
     (str/starts-with? t ":") t
     :else
-    (let [as-long (try (Long/parseLong t) (catch #?(:clj Exception :cljs :default) _ ::nan))]
-      (if (not= as-long ::nan)
-        as-long
-        (let [as-dbl (try (Double/parseDouble t) (catch #?(:clj Exception :cljs :default) _ ::nan))]
-          (if (not= as-dbl ::nan) as-dbl t))))))
+    ;; int → long, else float, else raw. Portable: clj parses via JVM, cljs (squint/
+    ;; ComponentizeJS wasm, ADR-2606261200) via strict regex + native parse so a
+    ;; non-numeric token stays a string (parseFloat's leniency would mis-type "1abc").
+    #?(:clj
+       (let [as-long (try (Long/parseLong t) (catch Exception _ ::nan))]
+         (if (not= as-long ::nan)
+           as-long
+           (let [as-dbl (try (Double/parseDouble t) (catch Exception _ ::nan))]
+             (if (not= as-dbl ::nan) as-dbl t))))
+       :cljs
+       (cond
+         (re-matches #"-?\d+" t)                                   (js/parseInt t 10)
+         (re-matches #"-?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?" t) (js/parseFloat t)
+         :else t))))
 
 (def ^:private end-marker ::end)
 
@@ -360,7 +378,7 @@
      "CLI entry: analyze a seed EDN graph → out/tracking-exposure-report.md (file I/O at the edge)."
      [& argv]
      (let [argv (vec argv)
-           here (-> *file* clojure.java.io/file .getParentFile .getParentFile)
+           here (clojure.java.io/file (or (System/getProperty "user.dir") "."))
            seed (if (and (seq argv) (not (str/starts-with? (first argv) "--")))
                   (clojure.java.io/file (first argv))
                   (clojure.java.io/file here "data" "seed-tracker-exposure.kotoba.edn"))

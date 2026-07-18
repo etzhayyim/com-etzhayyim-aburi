@@ -1,6 +1,6 @@
 (ns aburi.methods.coverage-report
   "aburi 炙り — tracker-exposure COVERAGE report (ADR-2606161630). 1:1 Clojure port of
-  `methods/coverage_report.py`.
+  Canonical CLJC implementation.
 
   Honest coverage of the exposure graph: by surface kind, by permission kind, by collector kind, by
   collector catalogue (provenance), by data-type kind — with a gap map naming thin/missing buckets.
@@ -97,7 +97,7 @@
      "CLI entry: render coverage-report.md from a seed EDN graph."
      [& argv]
      (let [argv (vec argv)
-           here (-> *file* clojure.java.io/file .getParentFile .getParentFile)
+           here (clojure.java.io/file (or (System/getProperty "user.dir") "."))
            seed (if (and (seq argv) (not (str/starts-with? (first argv) "--")))
                   (clojure.java.io/file (first argv))
                   (clojure.java.io/file here "data" "seed-tracker-exposure.kotoba.edn"))

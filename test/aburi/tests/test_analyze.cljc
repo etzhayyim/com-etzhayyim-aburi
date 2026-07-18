@@ -1,6 +1,6 @@
 (ns aburi.tests.test-analyze
   "aburi 炙り — analyzer + Datom-emit tests (ADR-2606161630). 1:1 Clojure port of
-  tests/test_analyze.py.
+  Canonical CLJC suite.
 
   Verifies the constitutional invariants empirically:
     - graph loads (nodes + 縁), seed is non-trivial, no dangling 縁
@@ -24,7 +24,7 @@
             [aburi.methods.analyze :as analyze]
             [aburi.methods.datom-emit :as datom-emit]))
 
-(def actor-dir (-> *file* io/file .getParentFile .getParentFile))
+(def actor-dir (io/file (or (System/getProperty "user.dir") ".")))
 (def seed (io/file actor-dir "data" "seed-tracker-exposure.kotoba.edn"))
 
 (defn load-seed [] (datom-emit/load-file* seed))

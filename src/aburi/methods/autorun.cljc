@@ -1,7 +1,7 @@
 #!/usr/bin/env bb
 ;; aburi 炙り — autonomous heartbeat: load the tracker-exposure graph → append GROUND datoms (cljc).
 (ns aburi.methods.autorun
-  "autorun.cljc — aburi 炙り deterministic heartbeat (cljc twin of methods/autorun.py;
+  "autorun.cljc — aburi 炙り deterministic heartbeat (canonical CLJC implementation;
   inochi/tate pattern, on ADR-2605312345).
 
   One beat: load the tracker-exposure seed graph, build the GROUND EAVT datoms (surface/
@@ -44,7 +44,7 @@
 
 #?(:clj
    (def ^:private here-dir
-     (-> *file* io/file .getCanonicalFile .getParentFile .getParentFile)))
+     (io/file (or (System/getProperty "user.dir") "."))))
 
 #?(:clj
    (defn default-seed-path []
