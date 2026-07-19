@@ -16,6 +16,7 @@
   throughout — for byte-parity with the Python implementation's CID preimage."
   (:require [clojure.string :as str]
             [aburi.methods.datom-emit :as de]
+            #?(:clj [cheshire.core :as json])
             #?(:clj [clojure.edn :as edn])))
 
 ;; ─── G2/G8 guard ─────────────────────────────────────────────────────────────
@@ -484,7 +485,6 @@
                           (.toPath (java.io.File. (str path)))))
              text (String. raw-bytes "UTF-8")
              doc (if (str/ends-with? (str path) ".json")
-                   ;; use cheshire if available, fall back to clojure.data.json
-                   ((requiring-resolve 'cheshire.core/parse-string) text false)
+                   (json/parse-string text false)
                    (edn/read-string text))]
          [doc (content-cid raw-bytes)]))))

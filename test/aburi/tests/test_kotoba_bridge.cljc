@@ -135,6 +135,15 @@
          ;; every tx_edn starts with "["
          (is (every? #(str/starts-with? (:tx_edn %) "[") (:bodies res)))))))
 
+(deftest test-live-default-transport-refuses-missing-http-capability
+  (testing "live default transport fails closed without explicit host authority"
+    #?(:clj
+       (let [log (seed-log (make-test-log) 1)]
+         (is (thrown-with-msg?
+              clojure.lang.ExceptionInfo
+              #"explicit http-post capability"
+              (kb/push log {:live true})))))))
+
 ;; ─── injected transport / live mode ──────────────────────────────────────────
 
 (deftest test-push-live-with-fake-transport
