@@ -14,7 +14,8 @@
     - no-server-key — unsigned public-DID operator bearer ONLY when ABURI_KOTOBA_OPERATOR_DID
       is set; no secret key is held or read;
     - DRY-RUN by default — live requires ABURI_KOTOBA_LIVE=1.
-  HTTP is an injectable fn (*http-post* / :transport), defaulting to babashka.http-client."
+  HTTP is an explicit injectable capability (:http-post / :transport); portable
+  code has no ambient network or JSON authority."
   (:require [clojure.string :as str]
             [aburi.methods.kotoba :as kt]))
 
@@ -101,27 +102,7 @@
               "." (b64 (cj [["sub" did]]))
               ".unsigned-loopback")))))
 
-;; ─── injectable HTTP edge ──────────────────────────────────────────────────────
-
-#?(:clj
-   (defn default-http-post [url body-map headers timeout-s]
-     (let [post     (requiring-resolve 'babashka.http-client/post)
-           generate (requiring-resolve 'cheshire.core/generate-string)
-           parse    (requiring-resolve 'cheshire.core/parse-string)
-           resp     (post (str url) {:headers headers
-                                     :body    (generate body-map)
-                                     :timeout (long (* 1000 (double timeout-s)))
-                                     :throw   false})
-           status   (:status resp)]
-       (if (<= 200 status 299)
-         (parse (:body resp) true)
-         (throw (ex-info (str "kotoba transact HTTP " status ": "
-                              (let [b (str (:body resp))]
-                                (subs b 0 (min 200 (count b)))))
-                         {:aburi/kotoba-transact-http-error true :status status}))))))
-
-(def ^:dynamic *http-post*
-  #?(:clj default-http-post :default nil))
+;; ─── explicit HTTP edge ─────────────────────────────────────────────────────
 
 #?(:clj
    (defn default-transport
@@ -129,10 +110,13 @@
      ([url body] (default-transport url body {}))
      ([url body {:keys [timeout-s http-post] :or {timeout-s 60.0}}]
       (assert-kotoba url)
+      (when-not (fn? http-post)
+        (throw (ex-info "live push requires an explicit http-post capability"
+                        {:aburi/capability :http-post})))
       (let [bearer  (try (operator-bearer) (catch Exception _ nil))
             headers (cond-> {"Content-Type" "application/json"}
                       bearer (assoc "Authorization" (str "Bearer " bearer)))]
-        ((or http-post *http-post*) url body headers timeout-s)))))
+        (http-post url body headers timeout-s)))))
 
 ;; ─── durable push cursor ──────────────────────────────────────────────────────
 
